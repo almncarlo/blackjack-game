@@ -33,6 +33,7 @@ if __name__ == '__main__':
     n = int(input())
 
     player_list = []
+    game_list = []
     while n != 7:
         # Make a player
         if n == 1:
@@ -47,7 +48,12 @@ if __name__ == '__main__':
             pass
         # Initialize a game
         elif n == 3:
-            pass
+            name, num_decks, standardbet = input().split(',')
+            num_decks, standardbet = int(num_decks), int(standardbet)
+            
+            # process new game
+            game_list.append(Game(name, num_decks, standardbet))
+            
         # Choose a game
         elif n == 4:
             pass
