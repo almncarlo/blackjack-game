@@ -7,6 +7,13 @@ def blackjackmenu():
 def blackjackmenu2():
     print("1 Hit\n2 Stand")
 
+
+class Player:
+    def __init__(self, name, money, strategy):
+        self.name = name
+        self.money = int(money)
+
+
 class Game:
     def __init__(self, name, num_decks, standardbet):
         self.suits = ['C','D','H','S']
@@ -17,23 +24,40 @@ class Game:
                 for j in self.values:
                     self.cardlist.append((j,i))
 
+    def rungame(self, player, automated = False):
+        pass
+
+
 if __name__ == '__main__':
     mainmenu()
     n = int(input())
 
+    player_list = []
     while n != 7:
+        # Make a player
         if n == 1:
-            pass
+            name, money = input().split(',')
+            money = int(money)
+
+            # process new player
+            player_list.append(Player(name, money))
+
+        # Choose a player
         elif n == 2:
             pass
+        # Initialize a game
         elif n == 3:
             pass
+        # Choose a game
         elif n == 4:
             pass
+        # Play a game
         elif n == 5:
             pass
+        # Play automated
         elif n == 6:
             pass
+        # Exit
         elif n == 7:
             exit
         
