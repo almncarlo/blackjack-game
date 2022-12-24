@@ -43,6 +43,9 @@ if __name__ == '__main__':
 
     player_list = []
     game_list = []
+    selected_player = None
+    selected_game = None
+
     while n != 7:
         # Make a player
         if n == 1:
@@ -56,6 +59,10 @@ if __name__ == '__main__':
             for p in sorted(player_list, key = lambda x:x.name):
                  print(list_idx, p)
                  list_idx += 1
+            
+            idx_select = int(input())
+            selected_player = sorted(player_list, key = lambda x:x.name)[idx_select - 1]
+            print(selected_player)
 
         # Initialize a game
         elif n == 3:
@@ -69,6 +76,10 @@ if __name__ == '__main__':
             for g in sorted(game_list, key = lambda x:x.name):
                  print(list_idx, g)
                  list_idx += 1
+            
+            idx_select = int(input())
+            selected_game = sorted(game_list, key = lambda x:x.name)[idx_select - 1]
+            print(selected_game)
 
         # Play a game
         elif n == 5:
