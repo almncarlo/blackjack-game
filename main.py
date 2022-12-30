@@ -9,7 +9,7 @@ def blackjackmenu2():
 
 
 class Player:
-    def __init__(self, name='default', money=89000):
+    def __init__(self, name, money):
         self.name = name
         self.money = int(money)
     
@@ -18,7 +18,7 @@ class Player:
 
 
 class Game:
-    def __init__(self, name='defaultgame', num_decks=8, standardbet=10):
+    def __init__(self, name, num_decks, standardbet):
         self.suits = ['C','D','H','S']
         self.values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K']
         self.cardlist = []
@@ -38,13 +38,27 @@ class Game:
 
 
 if __name__ == '__main__':
-    mainmenu()
-    n = int(input())
+    # given code snippet
+    cards = input().split(',')
+    newcardlist = []
+    for card in cards:
+        fv = card.split('-')
+        newcardlist.append((fv[0],fv[1]))
 
     player_list = []
     game_list = []
     selected_player = None
     selected_game = None
+
+    # initialize default player and game
+    default_p = Player('default', 89000)
+    default_g = Game('defaultgame', 8, 10)
+    default_g.cardlist = newcardlist.copy()
+    player_list.append(default_p)
+    game_list.append(default_g)
+
+    mainmenu()
+    n = int(input())
 
     while n != 7:
         # Make a player
@@ -83,10 +97,13 @@ if __name__ == '__main__':
 
         # Play a game
         elif n == 5:
-            pass
+            blackjackmenu()
+            
+
         # Play automated
         elif n == 6:
             pass
+
         # Exit
         elif n == 7:
             exit
