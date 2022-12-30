@@ -17,10 +17,10 @@ class Player:
         return f'{self.name} {self.money}'
     
     def addMoney(self, amount):
-        self.money += amount
+        self.money += int(amount)
     
     def subMoney(self, amount):
-        self.money -= amount
+        self.money -= int(amount)
 
 class Game:
     def __init__(self, name, num_decks, standardbet):
@@ -59,17 +59,27 @@ class Game:
             print(f'Dealer: {strDealer}\nDealer sum: {Game.checksum(dealer_cards)}')
             print(f'Player: {strPlayer}\nPlayer sum: {Game.checksum(player_cards)}')
     
-    def scoregame(self, dealer_hand, player_hand, player):
+    def scoregame(self, dealer_hand, player_hand, player, surrender = False):
         print('Final Cards')
         Game.printhand(dealer_hand, player_hand, True)
-        if abs(Game.checksum(dealer_hand) - 21) < abs(Game.checksum(player_hand) - 21):
+        if surrender == True:
             print('House wins')
-            player.subMoney(self.amountbet)
-        elif abs(Game.checksum(dealer_hand) - 21) > abs(Game.checksum(player_hand) - 21):
-            print('Player wins')
-            player.addMoney(self.amountbet)
+            print(player.money)
+            player.subMoney(self.amountbet / 2)
+            print(player.money)
         else:
-            print('Tie\nNo effect on money')
+            if abs(Game.checksum(dealer_hand) - 21) < abs(Game.checksum(player_hand) - 21):
+                print('House wins')
+                print(player.money)
+                player.subMoney(self.amountbet)
+                print(player.money)
+            elif abs(Game.checksum(dealer_hand) - 21) > abs(Game.checksum(player_hand) - 21):
+                print('Player wins')
+                print(player.money)
+                player.addMoney(self.amountbet)
+                print(player.money)
+            else:
+                print('Tie\nNo effect on money')
 
     def rungame(self, player, automated = False):
         dealer_cards = [self.cardlist[0], self.cardlist[2]]
@@ -78,7 +88,7 @@ class Game:
         del self.cardlist[0:4]
 
         Game.printhand(dealer_cards, player_cards)
-
+        blackjackmenu()
         n = int(input())
 
         while Game.checksum(player_cards) < 21:
@@ -93,13 +103,13 @@ class Game:
                 # if additional hand causes player to bust, proceed to scoring
                 if Game.checksum(player_cards) > 21:
                     print('Bust')
-                    Game.scoregame(dealer_cards, player_cards)
+                    Game.scoregame(self, dealer_cards, player_cards, player)
 
             elif n == 2:
                 dealer_cards.append(self.cardlist[0])
                 del self.cardlist[0]
                 print('Stand')
-                Game.scoregame(dealer_cards, player_cards)
+                Game.scoregame(self, dealer_cards, player_cards, player)
 
             elif n == 3:
                 print('Double down')
@@ -112,11 +122,13 @@ class Game:
                 else:
                     dealer_cards.append(self.cardlist[0])
                     del self.cardlist[0]
-                Game.scoregame(dealer_cards, player_cards)
+                Game.scoregame(self, dealer_cards, player_cards, player)
 
             elif n == 4:
                 print('Surrender')
-                
+                Game.scoregame(self, dealer_cards, player_cards, player, True)
+                break
+            
             else:
                 print('Check odds')
                 print(f'Odds that hand value will still be 21 or below: /')
@@ -124,7 +136,7 @@ class Game:
             n = int(input())
 
     def __str__(self):
-        return f'{self.name} {self.standardbet}'
+        return f'{self.name} {self.amountbet}'
 
 
 if __name__ == '__main__':
@@ -187,7 +199,6 @@ if __name__ == '__main__':
 
         # Play a game
         elif n == 5:
-            blackjackmenu()
             selected_game.rungame(selected_player)
 
         # Play automated
