@@ -35,17 +35,27 @@ class Game:
         self.name = name
         self.amountbet = standardbet
 
-    def checksum(hand):
+    def checksum(hand, odd_checking = False):
         sum = 0
-        for i in range(len(hand)):
-            if hand[i][0] == 'A' and (sum + 11) <= 21:
+        if odd_checking == False:
+            for i in range(len(hand)):
+                if hand[i][0] == 'A' and (sum + 11) <= 21:
+                    sum += 11
+                elif hand[i][0] == 'A' and (sum + 11) > 21:
+                    sum += 1
+                elif hand[i][0] in 'JQK':
+                    sum += 10
+                else:
+                    sum += (int(hand[i][0]))
+        else:
+            if hand[0] == 'A' and (sum + 11) <= 21:
                 sum += 11
-            elif hand[i][0] == 'A' and (sum + 11) > 21:
+            elif hand[0] == 'A' and (sum + 11) > 21:
                 sum += 1
-            elif hand[i][0] in 'JQK':
+            elif hand[0] in 'JQK':
                 sum += 10
             else:
-                sum += (int(hand[i][0]))
+                sum += (int(hand[0]))
         return sum
 
     def printhand(dealer_cards, player_cards, dealer_reveal = False):
@@ -104,13 +114,14 @@ class Game:
                 if Game.checksum(player_cards) > 21:
                     print('Bust')
                     Game.scoregame(self, dealer_cards, player_cards, player)
+                    break
 
             elif n == 2:
                 dealer_cards.append(self.cardlist[0])
                 del self.cardlist[0]
                 print('Stand')
                 Game.scoregame(self, dealer_cards, player_cards, player)
-
+                break
             elif n == 3:
                 print('Double down')
                 playerbet *= 2
@@ -119,20 +130,25 @@ class Game:
                 Game.printhand(dealer_cards, player_cards)
                 if Game.checksum(player_cards) > 21:
                     print('Bust')
+                    Game.scoregame(self, dealer_cards, player_cards, player)
+                    break
                 else:
                     dealer_cards.append(self.cardlist[0])
                     del self.cardlist[0]
-                Game.scoregame(self, dealer_cards, player_cards, player)
+                    Game.scoregame(self, dealer_cards, player_cards, player)
 
             elif n == 4:
                 print('Surrender')
                 Game.scoregame(self, dealer_cards, player_cards, player, True)
                 break
-            
+
             else:
-                print('Check odds')
-                print(f'Odds that hand value will still be 21 or below: /')
-            
+                good_handvalue = 0
+                for i in self.cardlist:
+                    if Game.checksum(player_cards) + Game.checksum(i, True) <= 21:
+                        good_handvalue += 1
+                print(f'Odds that hand value will still be 21 or below: {good_handvalue}/{len(self.cardlist)}')
+                blackjackmenu()
             n = int(input())
 
     def __str__(self):
