@@ -31,7 +31,30 @@ class Game:
         self.standardbet = standardbet
 
     def rungame(self, player, automated = False):
-        pass
+        dealer_cards = [self.cardlist[0], self.cardlist[2]]
+        player_cards = [self.cardlist[1], self.cardlist[3]]
+        
+        strDealer = '-'.join(dealer_cards[0])
+        strPlayer = ','.join([f'{x}-{y}' for (x,y) in player_cards])
+
+        print(f'Dealer: {strDealer},?-?\nPlayer: {strPlayer}')
+
+        n = int(input())
+
+        if n == 1:
+            print('Hit')
+            # player takes additional card
+            blackjackmenu2()
+            # if additional hand causes player to bust, proceed to scoring
+        elif n == 2:
+            print('Stand')
+        elif n == 3:
+            print('Double down')
+        elif n == 4:
+            print('Surrender')
+        else:
+            print('Check odds')
+            print(f'Odds that hand value will still be 21 or below: /')
 
     def __str__(self):
         return f'{self.name} {self.standardbet}'
@@ -98,11 +121,12 @@ if __name__ == '__main__':
         # Play a game
         elif n == 5:
             blackjackmenu()
-            
+            selected_game.rungame(selected_player)
 
         # Play automated
         elif n == 6:
-            pass
+            blackjackmenu()
+            selected_game.rungame(selected_player, True)
 
         # Exit
         elif n == 7:
