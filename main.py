@@ -9,9 +9,11 @@ def blackjackmenu2():
 
 
 class Player:
-    def __init__(self, name, money):
+    default_strat = 'd'
+    def __init__(self, name, money, strategy = default_strat):
         self.name = name
         self.money = int(money)
+        self.strategy = strategy
     
     def __str__(self):
         return f'{self.name} {self.money}'
@@ -117,11 +119,13 @@ class Game:
                     break
 
             elif n == 2:
-                dealer_cards.append(self.cardlist[0])
-                del self.cardlist[0]
+                while Game.checksum(dealer_cards) < 17:
+                    dealer_cards.append(self.cardlist[0])
+                    del self.cardlist[0]
                 print('Stand')
                 Game.scoregame(self, dealer_cards, player_cards, player)
                 break
+
             elif n == 3:
                 print('Double down')
                 playerbet *= 2
@@ -133,8 +137,9 @@ class Game:
                     Game.scoregame(self, dealer_cards, player_cards, player)
                     break
                 else:
-                    dealer_cards.append(self.cardlist[0])
-                    del self.cardlist[0]
+                    while Game.checksum(dealer_cards) < 17:
+                        dealer_cards.append(self.cardlist[0])
+                        del self.cardlist[0]
                     Game.scoregame(self, dealer_cards, player_cards, player)
 
             elif n == 4:
@@ -149,6 +154,7 @@ class Game:
                         good_handvalue += 1
                 print(f'Odds that hand value will still be 21 or below: {good_handvalue}/{len(self.cardlist)}')
                 blackjackmenu()
+
             n = int(input())
 
     def __str__(self):
@@ -194,7 +200,6 @@ if __name__ == '__main__':
             
             idx_select = int(input())
             selected_player = sorted(player_list, key = lambda x:x.name)[idx_select - 1]
-            print(selected_player)
 
         # Initialize a game
         elif n == 3:
@@ -211,7 +216,6 @@ if __name__ == '__main__':
             
             idx_select = int(input())
             selected_game = sorted(game_list, key = lambda x:x.name)[idx_select - 1]
-            print(selected_game)
 
         # Play a game
         elif n == 5:
@@ -228,4 +232,3 @@ if __name__ == '__main__':
         
         mainmenu()
         n = int(input())
-
