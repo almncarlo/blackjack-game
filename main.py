@@ -9,7 +9,26 @@ def blackjackmenu2():
 
 
 class Player:
-    default_strat = 'd'
+    default_strat = {
+        21:['s','s','s','s','s','s','s','s','s','s'],
+        20:['s','s','s','s','s','s','s','s','s','s'],
+        19:['s','s','s','s','s','s','s','s','s','s'],
+        18:['s','s','s','s','s','s','s','s','s','s'],
+        17:['s','s','s','s','s','s','s','s','s','us'],
+        16:['s','s','s','s','s','h','h','uh','uh','uh'],
+        15:['s','s','s','s','s','h','h','h','uh','uh'],
+        14:['s','s','s','s','s','h','h','h','h','h'],
+        13:['s','s','s','s','s','h','h','h','h','h'],
+        12:['h','h','s','s','s','h','h','h','h','h'],
+        11:['dh','dh','dh','dh','dh','dh','dh','dh','dh','dh'],
+        10:['dh','dh','dh','dh','dh','dh','dh','dh','h','h'],
+        9:['h','dh','dh','dh','dh','h','h','h','h','h'],
+        8:['h','h','h','h','h','h','h','h','h','h'],
+        7:['h','h','h','h','h','h','h','h','h','h'],
+        6:['h','h','h','h','h','h','h','h','h','h'],
+        5:['h','h','h','h','h','h','h','h','h','h'],
+        4:['h','h','h','h','h','h','h','h','h','h']
+    }
     def __init__(self, name, money, strategy = default_strat):
         self.name = name
         self.money = int(money)
@@ -101,7 +120,17 @@ class Game:
 
         Game.printhand(dealer_cards, player_cards)
         blackjackmenu()
-        n = int(input())
+
+        if automated == True:
+            strat = player.strategy[Game.checksum(player_cards)][Game.checksum(dealer_cards[0], True) - 2]
+            if strat == 'h': n = 1
+            elif strat == 's': n = 2
+            elif strat == 'dh': n = 3
+            elif strat == 'uh' or strat == 'us': n = 4
+        else:
+            n = int(input())
+
+        #player_turns = 0
 
         while Game.checksum(player_cards) < 21:
             if n == 1:
@@ -155,7 +184,19 @@ class Game:
                 print(f'Odds that hand value will still be 21 or below: {good_handvalue}/{len(self.cardlist)}')
                 blackjackmenu()
 
-            n = int(input())
+            #player_turns += 1
+
+            if automated == True:
+                strat = player.strategy[Game.checksum(player_cards)][Game.checksum(dealer_cards[0], True) - 2]
+                if strat == 'h': n = 1
+                elif strat == 's': n = 2
+                elif strat == 'dh':
+                    if n == 1: n = 1
+                    else: n = 3
+                elif strat == 'uh': n = 1
+                else: n = 2
+            else:
+                n = int(input())
 
     def __str__(self):
         return f'{self.name} {self.amountbet}'
@@ -223,7 +264,7 @@ if __name__ == '__main__':
 
         # Play automated
         elif n == 6:
-            blackjackmenu()
+            #blackjackmenu()
             selected_game.rungame(selected_player, True)
 
         # Exit
