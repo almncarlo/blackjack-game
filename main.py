@@ -10,24 +10,12 @@ def blackjackmenu2():
 
 class Player:
     default_strat = {
-        21:['s','s','s','s','s','s','s','s','s','s'],
-        20:['s','s','s','s','s','s','s','s','s','s'],
-        19:['s','s','s','s','s','s','s','s','s','s'],
-        18:['s','s','s','s','s','s','s','s','s','s'],
-        17:['s','s','s','s','s','s','s','s','s','us'],
-        16:['s','s','s','s','s','h','h','uh','uh','uh'],
-        15:['s','s','s','s','s','h','h','h','uh','uh'],
-        14:['s','s','s','s','s','h','h','h','h','h'],
-        13:['s','s','s','s','s','h','h','h','h','h'],
-        12:['h','h','s','s','s','h','h','h','h','h'],
-        11:['dh','dh','dh','dh','dh','dh','dh','dh','dh','dh'],
-        10:['dh','dh','dh','dh','dh','dh','dh','dh','h','h'],
-        9:['h','dh','dh','dh','dh','h','h','h','h','h'],
-        8:['h','h','h','h','h','h','h','h','h','h'],
-        7:['h','h','h','h','h','h','h','h','h','h'],
-        6:['h','h','h','h','h','h','h','h','h','h'],
-        5:['h','h','h','h','h','h','h','h','h','h'],
-        4:['h','h','h','h','h','h','h','h','h','h']
+        21:['s','s','s','s','s','s','s','s','s','s'], 20:['s','s','s','s','s','s','s','s','s','s'], 19:['s','s','s','s','s','s','s','s','s','s'],
+        18:['s','s','s','s','s','s','s','s','s','s'], 17:['s','s','s','s','s','s','s','s','s','us'], 16:['s','s','s','s','s','h','h','uh','uh','uh'],
+        15:['s','s','s','s','s','h','h','h','uh','uh'], 14:['s','s','s','s','s','h','h','h','h','h'], 13:['s','s','s','s','s','h','h','h','h','h'],
+        12:['h','h','s','s','s','h','h','h','h','h'], 11:['dh','dh','dh','dh','dh','dh','dh','dh','dh','dh'], 10:['dh','dh','dh','dh','dh','dh','dh','dh','h','h'],
+        9:['h','dh','dh','dh','dh','h','h','h','h','h'], 8:['h','h','h','h','h','h','h','h','h','h'], 7:['h','h','h','h','h','h','h','h','h','h'],
+        6:['h','h','h','h','h','h','h','h','h','h'], 5:['h','h','h','h','h','h','h','h','h','h'], 4:['h','h','h','h','h','h','h','h','h','h']
     }
     def __init__(self, name, money, strategy = default_strat):
         self.name = name
@@ -94,30 +82,24 @@ class Game:
         print('Final Cards')
         Game.printhand(dealer_hand, player_hand, True)
         if surrender == True:
-            print('House wins')
-            print(player.money)
+            print(f'House wins\n{player.money}')
             player.subMoney(self.amountbet / 2)
             print(player.money)
         else:
             if abs(Game.checksum(dealer_hand) - 21) < abs(Game.checksum(player_hand) - 21):
-                print('House wins')
-                print(player.money)
+                print(f'House wins\n{player.money}')
                 player.subMoney(self.amountbet)
                 print(player.money)
             elif abs(Game.checksum(dealer_hand) - 21) > abs(Game.checksum(player_hand) - 21):
-                print('Player wins')
-                print(player.money)
+                print(f'Player wins\n{player.money}')
                 player.addMoney(self.amountbet)
                 print(player.money)
             else:
                 print('Tie\nNo effect on money')
 
     def rungame(self, player, automated = False):
-        dealer_cards = [self.cardlist[0], self.cardlist[2]]
-        player_cards = [self.cardlist[1], self.cardlist[3]]
-        
+        dealer_cards, player_cards = [self.cardlist[0], self.cardlist[2]], [self.cardlist[1], self.cardlist[3]]
         del self.cardlist[0:4]
-
         Game.printhand(dealer_cards, player_cards)
         blackjackmenu()
 
@@ -130,12 +112,9 @@ class Game:
         else:
             n = int(input())
 
-        #player_turns = 0
-
         while Game.checksum(player_cards) < 21:
             if n == 1:
                 print('Hit')
-                # player takes additional card
                 player_cards.append(self.cardlist[0])
                 del self.cardlist[0]
                 Game.printhand(dealer_cards, player_cards)
@@ -184,8 +163,6 @@ class Game:
                 print(f'Odds that hand value will still be 21 or below: {good_handvalue}/{len(self.cardlist)}')
                 blackjackmenu()
 
-            #player_turns += 1
-
             if automated == True:
                 strat = player.strategy[Game.checksum(player_cards)][Game.checksum(dealer_cards[0], True) - 2]
                 if strat == 'h': n = 1
@@ -203,7 +180,6 @@ class Game:
 
 
 if __name__ == '__main__':
-    # given code snippet
     cards = input().split(',')
     newcardlist = []
     for card in cards:
@@ -238,7 +214,6 @@ if __name__ == '__main__':
             for p in sorted(player_list, key = lambda x:x.name):
                  print(list_idx, p)
                  list_idx += 1
-            
             idx_select = int(input())
             selected_player = sorted(player_list, key = lambda x:x.name)[idx_select - 1]
 
@@ -254,7 +229,6 @@ if __name__ == '__main__':
             for g in sorted(game_list, key = lambda x:x.name):
                  print(list_idx, g)
                  list_idx += 1
-            
             idx_select = int(input())
             selected_game = sorted(game_list, key = lambda x:x.name)[idx_select - 1]
 
@@ -264,12 +238,10 @@ if __name__ == '__main__':
 
         # Play automated
         elif n == 6:
-            #blackjackmenu()
             selected_game.rungame(selected_player, True)
 
         # Exit
-        elif n == 7:
-            exit
+        elif n == 7: exit
         
         mainmenu()
         n = int(input())
