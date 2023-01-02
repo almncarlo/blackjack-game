@@ -1,7 +1,0 @@
-Assumptions:
-
-- all inputs are proper
-- all games and players are unique
-- players always have enough money
-- names are always string
-- player money always an integer

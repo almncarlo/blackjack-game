@@ -17,7 +17,7 @@ class Player:
         9:['h','dh','dh','dh','dh','h','h','h','h','h'], 8:['h','h','h','h','h','h','h','h','h','h'], 7:['h','h','h','h','h','h','h','h','h','h'],
         6:['h','h','h','h','h','h','h','h','h','h'], 5:['h','h','h','h','h','h','h','h','h','h'], 4:['h','h','h','h','h','h','h','h','h','h']
     }
-    def __init__(self, name, money, strategy = default_strat):
+    def __init__(self, name, money = 89000, strategy = default_strat):
         self.name = name
         self.money = int(money)
         self.strategy = strategy
@@ -75,17 +75,30 @@ class Game:
             print(f'Dealer: {strDealer},?-?\nPlayer: {strPlayer}')
         else:
             strDealer = ','.join([f'{x}-{y}' for (x,y) in dealer_cards])
-            print(f'Dealer: {strDealer}\nDealer sum: {Game.checksum(dealer_cards)}')
-            print(f'Player: {strPlayer}\nPlayer sum: {Game.checksum(player_cards)}')
+            print(f'Dealer: {strDealer}\nDealer sum: {Game.checksum(dealer_cards)}\nPlayer: {strPlayer}\nPlayer sum: {Game.checksum(player_cards)}')
     
-    def scoregame(self, dealer_hand, player_hand, player, surrender = False):
-        print('Final Cards')
-        Game.printhand(dealer_hand, player_hand, True)
+    def scoregame(self, dealer_hand, player_hand, player, surrender = False, bust = False):
         if surrender == True:
+            print('Final Cards')
+            Game.printhand(dealer_hand, player_hand, True)
             print(f'House wins\n{player.money}')
             player.subMoney(self.amountbet / 2)
             print(player.money)
+        elif bust == True:
+            print('Bust\nFinal Cards')
+            Game.printhand(dealer_hand, player_hand, True)
+            print(f'House wins\n{player.money}')
+            player.subMoney(self.amountbet)
+            print(player.money)
+        elif Game.checksum(dealer_hand) > 21:
+            print('Final Cards')
+            Game.printhand(dealer_hand, player_hand, True)
+            print(f'Player wins\n{player.money}')
+            player.addMoney(self.amountbet)
+            print(player.money)
         else:
+            print('Final Cards')
+            Game.printhand(dealer_hand, player_hand, True)
             if abs(Game.checksum(dealer_hand) - 21) < abs(Game.checksum(player_hand) - 21):
                 print(f'House wins\n{player.money}')
                 player.subMoney(self.amountbet)
@@ -111,22 +124,24 @@ class Game:
             elif strat == 'uh' or strat == 'us': n = 4
         else:
             n = int(input())
+        
+        pick_surrender_checkodds = True
 
         while Game.checksum(player_cards) < 21:
             if n == 1:
+                pick_surrender_checkodds = False
                 print('Hit')
                 player_cards.append(self.cardlist[0])
                 del self.cardlist[0]
                 Game.printhand(dealer_cards, player_cards)
-                blackjackmenu2()
-
                 # if additional hand causes player to bust, proceed to scoring
                 if Game.checksum(player_cards) > 21:
-                    print('Bust')
-                    Game.scoregame(self, dealer_cards, player_cards, player)
+                    Game.scoregame(self, dealer_cards, player_cards, player, False, True)
                     break
+                blackjackmenu2()
 
             elif n == 2:
+                pick_surrender_checkodds = False
                 while Game.checksum(dealer_cards) < 17:
                     dealer_cards.append(self.cardlist[0])
                     del self.cardlist[0]
@@ -135,33 +150,70 @@ class Game:
                 break
 
             elif n == 3:
+                pick_surrender_checkodds = False
                 print('Double down')
-                playerbet *= 2
+                self.amountbet *= 2
                 player_cards.append(self.cardlist[0])
                 del self.cardlist[0]
                 Game.printhand(dealer_cards, player_cards)
                 if Game.checksum(player_cards) > 21:
-                    print('Bust')
-                    Game.scoregame(self, dealer_cards, player_cards, player)
+                    Game.scoregame(self, dealer_cards, player_cards, player, False, True)
+                    self.amountbet /= 2
+                    self.amountbet = int(self.amountbet)
                     break
                 else:
                     while Game.checksum(dealer_cards) < 17:
                         dealer_cards.append(self.cardlist[0])
                         del self.cardlist[0]
                     Game.scoregame(self, dealer_cards, player_cards, player)
+                    self.amountbet /= 2
+                    self.amountbet = int(self.amountbet)
+                    break
 
             elif n == 4:
-                print('Surrender')
-                Game.scoregame(self, dealer_cards, player_cards, player, True)
-                break
+                if pick_surrender_checkodds == True:
+                    print('Surrender')
+                    Game.scoregame(self, dealer_cards, player_cards, player, True)
+                    break
+                else:
+                    blackjackmenu()
+                    if automated == True:
+                        strat = player.strategy[Game.checksum(player_cards)][Game.checksum(dealer_cards[0], True) - 2]
+                        if strat == 'h': n = 1
+                        elif strat == 's': n = 2
+                        elif strat == 'dh':
+                            if n == 1: n = 1
+                            else: n = 3
+                        elif strat == 'uh': n = 1
+                        else: n = 2
+                    else:
+                        n = int(input())
+                    continue
 
-            else:
-                good_handvalue = 0
-                for i in self.cardlist:
-                    if Game.checksum(player_cards) + Game.checksum(i, True) <= 21:
-                        good_handvalue += 1
-                print(f'Odds that hand value will still be 21 or below: {good_handvalue}/{len(self.cardlist)}')
-                blackjackmenu()
+            elif n == 5:
+                if pick_surrender_checkodds == True:
+                    good_handvalue = 0
+                    for i in self.cardlist:
+                        temp_hand = player_cards.copy()
+                        temp_hand.append(i)
+                        if Game.checksum(temp_hand) <= 21:
+                            good_handvalue += 1
+                    print(f'Odds that hand value will still be 21 or below: {good_handvalue}/{len(self.cardlist)}')
+                    blackjackmenu()
+                else:
+                    blackjackmenu()
+                    if automated == True:
+                        strat = player.strategy[Game.checksum(player_cards)][Game.checksum(dealer_cards[0], True) - 2]
+                        if strat == 'h': n = 1
+                        elif strat == 's': n = 2
+                        elif strat == 'dh':
+                            if n == 1: n = 1
+                            else: n = 3
+                        elif strat == 'uh': n = 1
+                        else: n = 2
+                    else:
+                        n = int(input())
+                    continue
 
             if automated == True:
                 strat = player.strategy[Game.checksum(player_cards)][Game.checksum(dealer_cards[0], True) - 2]
@@ -192,10 +244,9 @@ if __name__ == '__main__':
     selected_game = None
 
     # initialize default player and game
-    default_p = Player('default', 89000)
+    player_list.append(Player('default', 89000))
     default_g = Game('defaultgame', 8, 10)
     default_g.cardlist = newcardlist.copy()
-    player_list.append(default_p)
     game_list.append(default_g)
 
     mainmenu()
