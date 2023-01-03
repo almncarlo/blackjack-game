@@ -9,6 +9,9 @@ def blackjackmenu2():
 
 
 class Player:
+    """Stores information regarding the player such as name, money, and strategy.
+    Implements methods to add or subtract money from the player."""
+
     default_strat = {
         21:['s','s','s','s','s','s','s','s','s','s'], 20:['s','s','s','s','s','s','s','s','s','s'], 19:['s','s','s','s','s','s','s','s','s','s'],
         18:['s','s','s','s','s','s','s','s','s','s'], 17:['s','s','s','s','s','s','s','s','s','us'], 16:['s','s','s','s','s','h','h','uh','uh','uh'],
@@ -31,7 +34,13 @@ class Player:
     def subMoney(self, amount):
         self.money -= int(amount)
 
+
 class Game:
+    """Identifies a game's name, number of decks to use, and the standard bet size.
+    It has methods for checking a hand's value sum, printing the hand of both
+    dealer and player, scoring the hands and declaring the winner, and running
+    the actual game itself."""
+
     def __init__(self, name, num_decks, standardbet):
         self.suits = ['C','D','H','S']
         self.values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K']
@@ -44,7 +53,11 @@ class Game:
         self.name = name
         self.standardbet = standardbet
 
+    def __str__(self):
+        return f'{self.name} {self.standardbet}'
+
     def checksum(hand, single_card = False):
+        """returns the value sum of the card/s in a hand"""
         sum = 0
         if single_card == False:
             for i in range(len(hand)):
@@ -68,6 +81,7 @@ class Game:
         return sum
 
     def printhand(dealer_cards, player_cards, dealer_reveal = False):
+        """prints the cards of the dealer and player as well as the value sums"""
         strPlayer = ','.join([f'{x}-{y}' for (x,y) in player_cards])
         if dealer_reveal == False:
             strDealer = '-'.join(dealer_cards[0])
@@ -77,6 +91,8 @@ class Game:
             print(f'Dealer: {strDealer}\nDealer sum: {Game.checksum(dealer_cards)}\nPlayer: {strPlayer}\nPlayer sum: {Game.checksum(player_cards)}')
     
     def scoregame(self, dealer_hand, player_hand, player, surrender = False, player_bust = False):
+        """once game proceeds to scoring, final cards are printed and the winner is presented
+        with the player's money before and after the game"""
         print('Final Cards')
         Game.printhand(dealer_hand, player_hand, True)
         if surrender == True:
@@ -104,6 +120,8 @@ class Game:
                 print('Tie\nNo effect on money')
 
     def rungame(self, player, automated = False):
+        """Program for blackjack game with another set of inputs separate from main menu.
+        Runs until player/dealer busts or when player surrenders."""
         dealer_cards, player_cards = [self.cardlist[0], self.cardlist[2]], [self.cardlist[1], self.cardlist[3]]
         del self.cardlist[0:4]
 
@@ -199,9 +217,6 @@ class Game:
 
             n = getinput(False, n)
 
-    def __str__(self):
-        return f'{self.name} {self.standardbet}'
-
 
 if __name__ == '__main__':
     cards = input().split(',')
@@ -221,12 +236,12 @@ if __name__ == '__main__':
     n = int(input())
 
     while n != 7:
-        if n == 1:
+        if n == 1: # Make a player
             name, money = input().split(',')
             money = int(money)
             player_list.append(Player(name, money))
 
-        elif n == 2:
+        elif n == 2: # Choose a player
             list_idx = 1
             for p in sorted(player_list, key = lambda x:x.name):
                  print(list_idx, p)
@@ -234,12 +249,12 @@ if __name__ == '__main__':
             idx_select = int(input())
             selected_player = sorted(player_list, key = lambda x:x.name)[idx_select - 1]
 
-        elif n == 3:
+        elif n == 3: # Initialize a game
             name, num_decks, standardbet = input().split(',')
             num_decks, standardbet = int(num_decks), int(standardbet)
             game_list.append(Game(name, num_decks, standardbet))
 
-        elif n == 4:
+        elif n == 4: # Choose a game
             list_idx = 1
             for g in sorted(game_list, key = lambda x:x.name):
                  print(list_idx, g)
@@ -247,11 +262,11 @@ if __name__ == '__main__':
             idx_select = int(input())
             selected_game = sorted(game_list, key = lambda x:x.name)[idx_select - 1]
 
-        elif n == 5: selected_game.rungame(selected_player)
+        elif n == 5: selected_game.rungame(selected_player) # Play a game
 
-        elif n == 6: selected_game.rungame(selected_player, True)
+        elif n == 6: selected_game.rungame(selected_player, True) # Play automated
 
-        elif n == 7: exit
+        elif n == 7: exit # Exit
         
         mainmenu()
         n = int(input())
