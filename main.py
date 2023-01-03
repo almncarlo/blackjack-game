@@ -42,11 +42,11 @@ class Game:
                     self.cardlist.append((j,i))
 
         self.name = name
-        self.amountbet = standardbet
+        self.standardbet = standardbet
 
-    def checksum(hand, odd_checking = False):
+    def checksum(hand, single_card = False):
         sum = 0
-        if odd_checking == False:
+        if single_card == False:
             for i in range(len(hand)):
                 if hand[i][0] == 'A' and (sum + 11) <= 21:
                     sum += 11
@@ -55,7 +55,7 @@ class Game:
                 elif hand[i][0] in 'JQK':
                     sum += 10
                 else:
-                    sum += (int(hand[i][0]))
+                    sum += int(hand[i][0])
         else:
             if hand[0] == 'A' and (sum + 11) <= 21:
                 sum += 11
@@ -64,12 +64,11 @@ class Game:
             elif hand[0] in 'JQK':
                 sum += 10
             else:
-                sum += (int(hand[0]))
+                sum += int(hand[0])
         return sum
 
     def printhand(dealer_cards, player_cards, dealer_reveal = False):
         strPlayer = ','.join([f'{x}-{y}' for (x,y) in player_cards])
-
         if dealer_reveal == False:
             strDealer = '-'.join(dealer_cards[0])
             print(f'Dealer: {strDealer},?-?\nPlayer: {strPlayer}')
@@ -77,35 +76,29 @@ class Game:
             strDealer = ','.join([f'{x}-{y}' for (x,y) in dealer_cards])
             print(f'Dealer: {strDealer}\nDealer sum: {Game.checksum(dealer_cards)}\nPlayer: {strPlayer}\nPlayer sum: {Game.checksum(player_cards)}')
     
-    def scoregame(self, dealer_hand, player_hand, player, surrender = False, bust = False):
+    def scoregame(self, dealer_hand, player_hand, player, surrender = False, player_bust = False):
+        print('Final Cards')
+        Game.printhand(dealer_hand, player_hand, True)
         if surrender == True:
-            print('Final Cards')
-            Game.printhand(dealer_hand, player_hand, True)
             print(f'House wins\n{player.money}')
-            player.subMoney(self.amountbet / 2)
+            player.subMoney(self.standardbet / 2)
             print(player.money)
-        elif bust == True:
-            print('Bust\nFinal Cards')
-            Game.printhand(dealer_hand, player_hand, True)
+        elif player_bust == True:
             print(f'House wins\n{player.money}')
-            player.subMoney(self.amountbet)
+            player.subMoney(self.standardbet)
             print(player.money)
         elif Game.checksum(dealer_hand) > 21:
-            print('Final Cards')
-            Game.printhand(dealer_hand, player_hand, True)
             print(f'Player wins\n{player.money}')
-            player.addMoney(self.amountbet)
+            player.addMoney(self.standardbet)
             print(player.money)
         else:
-            print('Final Cards')
-            Game.printhand(dealer_hand, player_hand, True)
             if abs(Game.checksum(dealer_hand) - 21) < abs(Game.checksum(player_hand) - 21):
                 print(f'House wins\n{player.money}')
-                player.subMoney(self.amountbet)
+                player.subMoney(self.standardbet)
                 print(player.money)
             elif abs(Game.checksum(dealer_hand) - 21) > abs(Game.checksum(player_hand) - 21):
                 print(f'Player wins\n{player.money}')
-                player.addMoney(self.amountbet)
+                player.addMoney(self.standardbet)
                 print(player.money)
             else:
                 print('Tie\nNo effect on money')
@@ -136,6 +129,7 @@ class Game:
                 Game.printhand(dealer_cards, player_cards)
                 # if additional hand causes player to bust, proceed to scoring
                 if Game.checksum(player_cards) > 21:
+                    print('Bust')
                     Game.scoregame(self, dealer_cards, player_cards, player, False, True)
                     break
                 blackjackmenu2()
@@ -151,23 +145,24 @@ class Game:
 
             elif n == 3:
                 pick_surrender_checkodds = False
-                print('Double down')
-                self.amountbet *= 2
+                print('Double Down')
+                self.standardbet *= 2
                 player_cards.append(self.cardlist[0])
                 del self.cardlist[0]
                 Game.printhand(dealer_cards, player_cards)
                 if Game.checksum(player_cards) > 21:
+                    print('Bust')
                     Game.scoregame(self, dealer_cards, player_cards, player, False, True)
-                    self.amountbet /= 2
-                    self.amountbet = int(self.amountbet)
+                    self.standardbet /= 2
+                    self.standardbet = int(self.standardbet)
                     break
                 else:
                     while Game.checksum(dealer_cards) < 17:
                         dealer_cards.append(self.cardlist[0])
                         del self.cardlist[0]
                     Game.scoregame(self, dealer_cards, player_cards, player)
-                    self.amountbet /= 2
-                    self.amountbet = int(self.amountbet)
+                    self.standardbet /= 2
+                    self.standardbet = int(self.standardbet)
                     break
 
             elif n == 4:
@@ -228,7 +223,7 @@ class Game:
                 n = int(input())
 
     def __str__(self):
-        return f'{self.name} {self.amountbet}'
+        return f'{self.name} {self.standardbet}'
 
 
 if __name__ == '__main__':
