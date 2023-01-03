@@ -106,28 +106,38 @@ class Game:
     def rungame(self, player, automated = False):
         dealer_cards, player_cards = [self.cardlist[0], self.cardlist[2]], [self.cardlist[1], self.cardlist[3]]
         del self.cardlist[0:4]
+
+        def getinput(first_pick = False, prev_n = None):
+            strat = player.strategy[Game.checksum(player_cards)][Game.checksum(dealer_cards[0], True) - 2]
+            if automated == True and first_pick == True:
+                if strat == 'h': n = 1
+                elif strat == 's': n = 2
+                elif strat == 'dh': n = 3
+                elif strat == 'uh' or strat == 'us': n = 4
+            elif automated == True and first_pick == False:
+                if strat == 'h': n = 1
+                elif strat == 's': n = 2
+                elif strat == 'dh':
+                    if prev_n == 1: n = 1
+                    else: n = 3
+                elif strat == 'uh': n = 1
+                else: n = 2
+            else:
+                n = int(input())
+            return n
+        
         Game.printhand(dealer_cards, player_cards)
         blackjackmenu()
-
-        if automated == True:
-            strat = player.strategy[Game.checksum(player_cards)][Game.checksum(dealer_cards[0], True) - 2]
-            if strat == 'h': n = 1
-            elif strat == 's': n = 2
-            elif strat == 'dh': n = 3
-            elif strat == 'uh' or strat == 'us': n = 4
-        else:
-            n = int(input())
-        
+        n = getinput(True)
         pick_surrender_checkodds = True
 
         while Game.checksum(player_cards) < 21:
             if n == 1:
-                pick_surrender_checkodds = False
                 print('Hit')
+                pick_surrender_checkodds = False
                 player_cards.append(self.cardlist[0])
                 del self.cardlist[0]
                 Game.printhand(dealer_cards, player_cards)
-                # if additional hand causes player to bust, proceed to scoring
                 if Game.checksum(player_cards) > 21:
                     print('Bust')
                     Game.scoregame(self, dealer_cards, player_cards, player, False, True)
@@ -135,17 +145,17 @@ class Game:
                 blackjackmenu2()
 
             elif n == 2:
+                print('Stand')
                 pick_surrender_checkodds = False
                 while Game.checksum(dealer_cards) < 17:
                     dealer_cards.append(self.cardlist[0])
                     del self.cardlist[0]
-                print('Stand')
                 Game.scoregame(self, dealer_cards, player_cards, player)
                 break
 
             elif n == 3:
-                pick_surrender_checkodds = False
                 print('Double Down')
+                pick_surrender_checkodds = False
                 self.standardbet *= 2
                 player_cards.append(self.cardlist[0])
                 del self.cardlist[0]
@@ -153,17 +163,14 @@ class Game:
                 if Game.checksum(player_cards) > 21:
                     print('Bust')
                     Game.scoregame(self, dealer_cards, player_cards, player, False, True)
-                    self.standardbet /= 2
-                    self.standardbet = int(self.standardbet)
-                    break
                 else:
                     while Game.checksum(dealer_cards) < 17:
                         dealer_cards.append(self.cardlist[0])
                         del self.cardlist[0]
                     Game.scoregame(self, dealer_cards, player_cards, player)
-                    self.standardbet /= 2
-                    self.standardbet = int(self.standardbet)
-                    break
+                self.standardbet /= 2
+                self.standardbet = int(self.standardbet)
+                break
 
             elif n == 4:
                 if pick_surrender_checkodds == True:
@@ -172,17 +179,7 @@ class Game:
                     break
                 else:
                     blackjackmenu()
-                    if automated == True:
-                        strat = player.strategy[Game.checksum(player_cards)][Game.checksum(dealer_cards[0], True) - 2]
-                        if strat == 'h': n = 1
-                        elif strat == 's': n = 2
-                        elif strat == 'dh':
-                            if n == 1: n = 1
-                            else: n = 3
-                        elif strat == 'uh': n = 1
-                        else: n = 2
-                    else:
-                        n = int(input())
+                    n = getinput(False, n)
                     continue
 
             elif n == 5:
@@ -197,30 +194,10 @@ class Game:
                     blackjackmenu()
                 else:
                     blackjackmenu()
-                    if automated == True:
-                        strat = player.strategy[Game.checksum(player_cards)][Game.checksum(dealer_cards[0], True) - 2]
-                        if strat == 'h': n = 1
-                        elif strat == 's': n = 2
-                        elif strat == 'dh':
-                            if n == 1: n = 1
-                            else: n = 3
-                        elif strat == 'uh': n = 1
-                        else: n = 2
-                    else:
-                        n = int(input())
+                    n = getinput(False, n)
                     continue
 
-            if automated == True:
-                strat = player.strategy[Game.checksum(player_cards)][Game.checksum(dealer_cards[0], True) - 2]
-                if strat == 'h': n = 1
-                elif strat == 's': n = 2
-                elif strat == 'dh':
-                    if n == 1: n = 1
-                    else: n = 3
-                elif strat == 'uh': n = 1
-                else: n = 2
-            else:
-                n = int(input())
+            n = getinput(False, n)
 
     def __str__(self):
         return f'{self.name} {self.standardbet}'
@@ -233,12 +210,8 @@ if __name__ == '__main__':
         fv = card.split('-')
         newcardlist.append((fv[0],fv[1]))
 
-    player_list = []
-    game_list = []
-    selected_player = None
-    selected_game = None
-
-    # initialize default player and game
+    player_list, game_list = [], []
+    selected_player, selected_game = None, None
     player_list.append(Player('default', 89000))
     default_g = Game('defaultgame', 8, 10)
     default_g.cardlist = newcardlist.copy()
@@ -248,13 +221,11 @@ if __name__ == '__main__':
     n = int(input())
 
     while n != 7:
-        # Make a player
         if n == 1:
             name, money = input().split(',')
             money = int(money)
             player_list.append(Player(name, money))
 
-        # Choose a player
         elif n == 2:
             list_idx = 1
             for p in sorted(player_list, key = lambda x:x.name):
@@ -263,13 +234,11 @@ if __name__ == '__main__':
             idx_select = int(input())
             selected_player = sorted(player_list, key = lambda x:x.name)[idx_select - 1]
 
-        # Initialize a game
         elif n == 3:
             name, num_decks, standardbet = input().split(',')
             num_decks, standardbet = int(num_decks), int(standardbet)
             game_list.append(Game(name, num_decks, standardbet))
 
-        # Choose a game
         elif n == 4:
             list_idx = 1
             for g in sorted(game_list, key = lambda x:x.name):
@@ -278,15 +247,10 @@ if __name__ == '__main__':
             idx_select = int(input())
             selected_game = sorted(game_list, key = lambda x:x.name)[idx_select - 1]
 
-        # Play a game
-        elif n == 5:
-            selected_game.rungame(selected_player)
+        elif n == 5: selected_game.rungame(selected_player)
 
-        # Play automated
-        elif n == 6:
-            selected_game.rungame(selected_player, True)
+        elif n == 6: selected_game.rungame(selected_player, True)
 
-        # Exit
         elif n == 7: exit
         
         mainmenu()
