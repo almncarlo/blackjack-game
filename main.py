@@ -59,26 +59,24 @@ class Game:
     def checksum(hand, single_card = False):
         """returns the value sum of the card/s in a hand"""
         sum = 0
+        ace_count = 0
+
         if single_card == False:
             for i in range(len(hand)):
-                if hand[i][0] == 'A' and (sum + 11) <= 21:
-                    sum += 11
-                elif hand[i][0] == 'A' and (sum + 11) > 21:
+                if hand[i][0] == 'A':
                     sum += 1
-                elif hand[i][0] in 'JQK':
-                    sum += 10
-                else:
-                    sum += int(hand[i][0])
-        else:
-            if hand[0] == 'A' and (sum + 11) <= 21:
-                sum += 11
-            elif hand[0] == 'A' and (sum + 11) > 21:
-                sum += 1
-            elif hand[0] in 'JQK':
+                    ace_count += 1
+                elif hand[i][0] in 'JQK': sum += 10
+                else: sum += int(hand[i][0])
+            
+            while (21 - sum) >= 10 and ace_count > 0:
                 sum += 10
-            else:
-                sum += int(hand[0])
-        return sum
+                ace_count -= 1
+            return sum
+        else:
+            if hand[0][0] == 'A': return 11
+            elif hand[0][0] in 'JQK': return 10
+            else: return int(hand[0][0])
 
     def printhand(dealer_cards, player_cards, dealer_reveal = False):
         """prints the cards of the dealer and player as well as the value sums"""
@@ -125,19 +123,17 @@ class Game:
         dealer_cards, player_cards = [self.cardlist[0], self.cardlist[2]], [self.cardlist[1], self.cardlist[3]]
         del self.cardlist[0:4]
 
-        def getinput(first_pick = False, prev_n = None):
-            strat = player.strategy[Game.checksum(player_cards)][Game.checksum(dealer_cards[0], True) - 2]
-            if automated == True and first_pick == True:
+        def getinput(first_turn = False):
+            strat = player.strategy[Game.checksum(player_cards)][Game.checksum(dealer_cards, True) - 2]
+            if automated == True and first_turn == True:
                 if strat == 'h': n = 1
                 elif strat == 's': n = 2
                 elif strat == 'dh': n = 3
                 elif strat == 'uh' or strat == 'us': n = 4
-            elif automated == True and first_pick == False:
+            elif automated == True and first_turn == False:
                 if strat == 'h': n = 1
                 elif strat == 's': n = 2
-                elif strat == 'dh':
-                    if prev_n == 1: n = 1
-                    else: n = 3
+                elif strat == 'dh': n = 1
                 elif strat == 'uh': n = 1
                 else: n = 2
             else:
@@ -146,13 +142,12 @@ class Game:
         
         Game.printhand(dealer_cards, player_cards)
         blackjackmenu()
-        n = getinput(True)
-        pick_surrender_checkodds = True
+        first_turn = True
+        n = getinput(first_turn)
 
-        while Game.checksum(player_cards) < 21:
+        while True:
             if n == 1:
                 print('Hit')
-                pick_surrender_checkodds = False
                 player_cards.append(self.cardlist[0])
                 del self.cardlist[0]
                 Game.printhand(dealer_cards, player_cards)
@@ -160,11 +155,12 @@ class Game:
                     print('Bust')
                     Game.scoregame(self, dealer_cards, player_cards, player, False, True)
                     break
+                first_turn = False
                 blackjackmenu2()
+                n = getinput()
 
             elif n == 2:
                 print('Stand')
-                pick_surrender_checkodds = False
                 while Game.checksum(dealer_cards) < 17:
                     dealer_cards.append(self.cardlist[0])
                     del self.cardlist[0]
@@ -173,7 +169,6 @@ class Game:
 
             elif n == 3:
                 print('Double Down')
-                pick_surrender_checkodds = False
                 self.standardbet *= 2
                 player_cards.append(self.cardlist[0])
                 del self.cardlist[0]
@@ -191,17 +186,17 @@ class Game:
                 break
 
             elif n == 4:
-                if pick_surrender_checkodds == True:
+                if first_turn == True:
                     print('Surrender')
                     Game.scoregame(self, dealer_cards, player_cards, player, True)
                     break
                 else:
                     blackjackmenu()
-                    n = getinput(False, n)
+                    n = getinput()
                     continue
 
             elif n == 5:
-                if pick_surrender_checkodds == True:
+                if first_turn == True:
                     good_handvalue = 0
                     for i in self.cardlist:
                         temp_hand = player_cards.copy()
@@ -210,12 +205,12 @@ class Game:
                             good_handvalue += 1
                     print(f'Odds that hand value will still be 21 or below: {good_handvalue}/{len(self.cardlist)}')
                     blackjackmenu()
+                    n = getinput(True)
+                    continue
                 else:
                     blackjackmenu()
-                    n = getinput(False, n)
+                    n = getinput()
                     continue
-
-            n = getinput(False, n)
 
 
 if __name__ == '__main__':
